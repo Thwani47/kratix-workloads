@@ -1,4 +1,5 @@
 name: Generate Application Scaffold
+run-name: Generate App - [${{ inputs.correlation_id }}]
 
 on:
     workflow_dispatch:
