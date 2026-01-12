@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: awesome-demo-api-postgres
+  namespace: default
+  labels:
+    app: awesome-demo-api-postgres
+    component: database
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: awesome-demo-api-postgres
+  template:
+    metadata:
+      labels:
+        app: awesome-demo-api-postgres
+        component: database
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:15-alpine
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: awesome-demo-api
+            - name: POSTGRES_USER
+              value: postgres
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: awesome-demo-api-db-credentials
+                  key: postgres-password
+          volumeMounts:
+            - name: postgres-storage
+              mountPath: /var/lib/postgresql/data
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+      volumes:
+        - name: postgres-storage
+          persistentVolumeClaim:
+            claimName: awesome-demo-api-postgres-pvc
