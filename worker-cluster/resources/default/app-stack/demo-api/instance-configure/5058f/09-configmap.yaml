@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: demo-api-info
+  namespace: default
+data:
+  app-name: "demo-api"
+  api-endpoint: "http://demo-api-api.default.svc.cluster.local"
+  database-host: "demo-api-postgres.default.svc.cluster.local"
+  environment: "dev"
+  ingress-url: "https://demo-api.example.com"
