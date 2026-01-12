@@ -1,15 +1,12 @@
 name: Generate Application Scaffold
 
 on:
-  workflow_call:
+  workflow_dispatch:
     inputs:
       app_name:
         description: 'Name of the application to create'
         required: true
         type: string
-    secrets:
-      GITHUB_TOKEN:
-        required: true
 
 jobs:
   generate-scaffold:

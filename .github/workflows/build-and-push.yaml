@@ -1,7 +1,7 @@
 name: Build and Push Docker Image
 
 on:
-  workflow_call:
+  workflow_dispatch:
     inputs:
       app_name:
         description: 'Name of the application to build'
@@ -21,17 +21,6 @@ on:
         required: false
         type: boolean
         default: true
-    secrets:
-      REGISTRY_TOKEN:
-        description: 'Container registry authentication token'
-        required: true
-    outputs:
-      image_tag:
-        description: "The full image tag that was built"
-        value: ${{ jobs.build-and-push.outputs.image_tag }}
-      image_digest:
-        description: "The image digest"
-        value: ${{ jobs.build-and-push.outputs.image_digest }}
 
 jobs:
   build-and-push:
