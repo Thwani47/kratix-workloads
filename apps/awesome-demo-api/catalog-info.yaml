@@ -1,0 +1,109 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: awesome-demo-api
+  description: This is an awesome API
+  annotations:
+    github.com/project-slug: Thwani47/kratix-workloads
+    backstage.io/kubernetes-id: awesome-demo-api
+    backstage.io/kubernetes-namespace: default
+    backstage.io/kubernetes-cluster: worker-cluster
+  tags:
+    - app-stack
+    - kratix
+    - python
+    - flask
+    - postgresql
+  links:
+    
+    
+    
+    - url: https://github.com/Thwani47/kratix-workloads/tree/master/apps/awesome-demo-api
+      title: Source Code
+      icon: github
+spec:
+  type: service
+  lifecycle: dev
+  owner: platform-team
+  system: app-stack
+  providesApis:
+    - awesome-demo-api-api
+  dependsOn:
+    - resource:default/awesome-demo-api-postgres
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: awesome-demo-api-api
+  description: REST API for awesome-demo-api
+  annotations:
+    backstage.io/kubernetes-id: awesome-demo-api-api
+    backstage.io/kubernetes-namespace: default
+    backstage.io/kubernetes-cluster: worker-cluster
+spec:
+  type: openapi
+  lifecycle: dev
+  owner: platform-team
+  system: app-stack
+  definition: |
+    openapi: 3.0.0
+    info:
+      title: awesome-demo-api API
+      version: 1.0.0
+      description: This is an awesome API
+    servers:
+      
+      
+      - url: http://awesome-demo-api-api.default.svc.cluster.local
+        description: Internal cluster endpoint
+    paths:
+      /:
+        get:
+          summary: Welcome page
+          responses:
+            '200':
+              description: Welcome message with visit count
+      /health:
+        get:
+          summary: Health check
+          responses:
+            '200':
+              description: Service is healthy
+      /ready:
+        get:
+          summary: Readiness check
+          responses:
+            '200':
+              description: Service is ready
+            '503':
+              description: Service is not ready
+      /api/visits:
+        get:
+          summary: Get recent visits
+          responses:
+            '200':
+              description: List of recent visits
+      /api/info:
+        get:
+          summary: Application information
+          responses:
+            '200':
+              description: Application metadata
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: awesome-demo-api-postgres
+  description: PostgreSQL database for awesome-demo-api
+  annotations:
+    backstage.io/kubernetes-id: awesome-demo-api-postgres
+    backstage.io/kubernetes-namespace: default
+    backstage.io/kubernetes-cluster: worker-cluster
+spec:
+  type: database
+  owner: platform-team
+  system: app-stack
+  dependsOn:
+    - component:default/awesome-demo-api
