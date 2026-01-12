@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-api-api
+  namespace: default
+  labels:
+    app: demo-api-api
+    component: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: demo-api-api
+  template:
+    metadata:
+      labels:
+        app: demo-api-api
+        component: backend
+    spec:
+      containers:
+        - name: api
+          image: ghcr.io/thwani47/demo-api:latest
+          ports:
+            - containerPort: 80
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: demo-api-db-credentials
+                  key: database-url
+            - name: DB_HOST
+              value: demo-api-postgres
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_NAME
+              value: demo-api
+            - name: DB_USER
+              value: postgres
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: demo-api-db-credentials
+                  key: postgres-password
+            - name: ENVIRONMENT
+              value: dev
+            - name: PORT
+              value: "80"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 5

@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: another-api-api
+  namespace: default
+  labels:
+    app: another-api-api
+    component: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: another-api-api
+  template:
+    metadata:
+      labels:
+        app: another-api-api
+        component: backend
+    spec:
+      containers:
+        - name: api
+          image: nginx:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: another-api-db-credentials
+                  key: database-url
+            - name: DB_HOST
+              value: another-api-postgres
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_NAME
+              value: another-api
+            - name: DB_USER
+              value: postgres
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: another-api-db-credentials
+                  key: postgres-password
+            - name: ENVIRONMENT
+              value: dev
+            - name: PORT
+              value: "8080"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
