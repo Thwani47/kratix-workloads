@@ -1,7 +1,0 @@
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: default
-  labels:
-    app: demo-api
-    environment: dev
