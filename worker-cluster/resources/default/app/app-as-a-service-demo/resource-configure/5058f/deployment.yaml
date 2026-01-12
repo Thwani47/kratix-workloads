@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: app-as-a-service-demo
+  name: app-as-a-service-demo
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app-as-a-service-demo
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: app-as-a-service-demo
+    spec:
+      containers:
+      - env:
+        - name: PGPASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: password
+              name: app-as-a-service-demoteam.app-as-a-service-demoteam-app-as-a-service-demodb-postgresql.credentials.postgresql.acid.zalan.do
+        - name: PGUSER
+          valueFrom:
+            secretKeyRef:
+              key: username
+              name: app-as-a-service-demoteam.app-as-a-service-demoteam-app-as-a-service-demodb-postgresql.credentials.postgresql.acid.zalan.do
+        - name: PGHOST
+          value: app-as-a-service-demoteam-app-as-a-service-demodb-postgresql.default.svc.cluster.local
+        - name: DBNAME
+          value: app-as-a-service-demodb
+        image: syntasso/sample-todo-app:v1.0.0
+        name: sample-todo-app
+        resources: {}
+status: {}
