@@ -1,8 +1,0 @@
-apiVersion: marketplace.kratix.io/v1alpha2
-kind: postgresql
-metadata:
-  name: app-as-a-service-demodb
-  namespace: default
-spec:
-  dbName: app-as-a-service-demodb
-  teamId: app-as-a-service-demoteam
