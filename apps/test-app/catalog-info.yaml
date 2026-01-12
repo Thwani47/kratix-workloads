@@ -1,0 +1,109 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: test-app
+  description: This is a test app
+  annotations:
+    github.com/project-slug: Thwani47/kratix-workloads
+    backstage.io/kubernetes-id: test-app
+    backstage.io/kubernetes-namespace: default
+    backstage.io/kubernetes-cluster: worker-cluster
+  tags:
+    - app-stack
+    - kratix
+    - python
+    - flask
+    - postgresql
+  links:
+    
+    
+    
+    - url: https://github.com/Thwani47/kratix-workloads/tree/master/apps/test-app
+      title: Source Code
+      icon: github
+spec:
+  type: service
+  lifecycle: dev
+  owner: platform-team
+  system: app-stack
+  providesApis:
+    - test-app-api
+  dependsOn:
+    - resource:default/test-app-postgres
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: test-app-api
+  description: REST API for test-app
+  annotations:
+    backstage.io/kubernetes-id: test-app-api
+    backstage.io/kubernetes-namespace: default
+    backstage.io/kubernetes-cluster: worker-cluster
+spec:
+  type: openapi
+  lifecycle: dev
+  owner: platform-team
+  system: app-stack
+  definition: |
+    openapi: 3.0.0
+    info:
+      title: test-app API
+      version: 1.0.0
+      description: This is a test app
+    servers:
+      
+      
+      - url: http://test-app-api.default.svc.cluster.local
+        description: Internal cluster endpoint
+    paths:
+      /:
+        get:
+          summary: Welcome page
+          responses:
+            '200':
+              description: Welcome message with visit count
+      /health:
+        get:
+          summary: Health check
+          responses:
+            '200':
+              description: Service is healthy
+      /ready:
+        get:
+          summary: Readiness check
+          responses:
+            '200':
+              description: Service is ready
+            '503':
+              description: Service is not ready
+      /api/visits:
+        get:
+          summary: Get recent visits
+          responses:
+            '200':
+              description: List of recent visits
+      /api/info:
+        get:
+          summary: Application information
+          responses:
+            '200':
+              description: Application metadata
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: test-app-postgres
+  description: PostgreSQL database for test-app
+  annotations:
+    backstage.io/kubernetes-id: test-app-postgres
+    backstage.io/kubernetes-namespace: default
+    backstage.io/kubernetes-cluster: worker-cluster
+spec:
+  type: database
+  owner: platform-team
+  system: app-stack
+  dependsOn:
+    - component:default/test-app
