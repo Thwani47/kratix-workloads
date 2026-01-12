@@ -8,4 +8,4 @@ data:
   api-endpoint: "http://test-stack-api-api.default.svc.cluster.local"
   database-host: "test-stack-api-postgres.default.svc.cluster.local"
   environment: "dev"
-  ingress-url: "https://"
+  ingress-url: "https://test-stack-api.local.gd"
