@@ -8,4 +8,4 @@ data:
   api-endpoint: "http://awesome-demo-api-api.default.svc.cluster.local"
   database-host: "awesome-demo-api-postgres.default.svc.cluster.local"
   environment: "dev"
-  ingress-url: "https://"
+  ingress-url: "https://awesome-demo-api.local.gd"
