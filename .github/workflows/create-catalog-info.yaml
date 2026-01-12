@@ -1,0 +1,192 @@
+name: Create Backstage Catalog Info
+run-name: Create Catalog Info -[${{ inputs.correlation_id }}] 
+
+on:
+  workflow_dispatch:
+    inputs:
+      app_name:
+        description: 'Application name'
+        required: true
+        type: string
+      description:
+        description: 'Application description'
+        required: false
+        type: string
+        default: ''
+      namespace:
+        description: 'Kubernetes namespace'
+        required: false
+        type: string
+        default: 'default'
+      api_image:
+        description: 'Docker image'
+        required: false
+        type: string
+        default: ''
+      environment:
+        description: 'Environment (dev/staging/prod)'
+        required: false
+        type: string
+        default: 'dev'
+      ingress_host:
+        description: 'Ingress hostname'
+        required: false
+        type: string
+        default: ''
+      correlation_id:
+        description: 'Correlation ID for tracking'
+        required: false
+        type: string
+
+jobs:
+  create-catalog:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create catalog-info.yaml
+        run: |
+          APP_DIR="apps/${{ inputs.app_name }}"
+
+          # Ensure directory exists
+          if [ ! -d "$APP_DIR" ]; then
+            echo "Error: Directory $APP_DIR does not exist"
+            exit 1
+          fi
+
+          cat > "$APP_DIR/catalog-info.yaml" <<'EOF'
+          apiVersion: backstage.io/v1alpha1
+          kind: Component
+          metadata:
+            name: ${{ inputs.app_name }}
+            description: ${{ inputs.description }}
+            annotations:
+              github.com/project-slug: Thwani47/kratix-workloads
+              backstage.io/kubernetes-id: ${{ inputs.app_name }}
+              backstage.io/kubernetes-namespace: ${{ inputs.namespace }}
+              backstage.io/kubernetes-cluster: worker-cluster
+            tags:
+              - app-stack
+              - kratix
+              - python
+              - flask
+              - postgresql
+            links:
+              ${{ inputs.ingress_host != '' && format('- url: https://{0}', inputs.ingress_host) || '' }}
+              ${{ inputs.ingress_host != '' && '  title: Live Application' || '' }}
+              ${{ inputs.ingress_host != '' && '  icon: web' || '' }}
+              - url: https://github.com/Thwani47/kratix-workloads/tree/master/apps/${{ inputs.app_name }}
+                title: Source Code
+                icon: github
+          spec:
+            type: service
+            lifecycle: ${{ inputs.environment }}
+            owner: platform-team
+            system: app-stack
+            providesApis:
+              - ${{ inputs.app_name }}-api
+            dependsOn:
+              - resource:${{ inputs.namespace }}/${{ inputs.app_name }}-postgres
+
+          ---
+          apiVersion: backstage.io/v1alpha1
+          kind: API
+          metadata:
+            name: ${{ inputs.app_name }}-api
+            description: REST API for ${{ inputs.app_name }}
+            annotations:
+              backstage.io/kubernetes-id: ${{ inputs.app_name }}-api
+              backstage.io/kubernetes-namespace: ${{ inputs.namespace }}
+              backstage.io/kubernetes-cluster: worker-cluster
+          spec:
+            type: openapi
+            lifecycle: ${{ inputs.environment }}
+            owner: platform-team
+            system: app-stack
+            definition: |
+              openapi: 3.0.0
+              info:
+                title: ${{ inputs.app_name }} API
+                version: 1.0.0
+                description: ${{ inputs.description }}
+              servers:
+                ${{ inputs.ingress_host != '' && format('- url: https://{0}', inputs.ingress_host) || '' }}
+                ${{ inputs.ingress_host != '' && '  description: Public endpoint' || '' }}
+                - url: http://${{ inputs.app_name }}-api.${{ inputs.namespace }}.svc.cluster.local
+                  description: Internal cluster endpoint
+              paths:
+                /:
+                  get:
+                    summary: Welcome page
+                    responses:
+                      '200':
+                        description: Welcome message with visit count
+                /health:
+                  get:
+                    summary: Health check
+                    responses:
+                      '200':
+                        description: Service is healthy
+                /ready:
+                  get:
+                    summary: Readiness check
+                    responses:
+                      '200':
+                        description: Service is ready
+                      '503':
+                        description: Service is not ready
+                /api/visits:
+                  get:
+                    summary: Get recent visits
+                    responses:
+                      '200':
+                        description: List of recent visits
+                /api/info:
+                  get:
+                    summary: Application information
+                    responses:
+                      '200':
+                        description: Application metadata
+
+          ---
+          apiVersion: backstage.io/v1alpha1
+          kind: Resource
+          metadata:
+            name: ${{ inputs.app_name }}-postgres
+            description: PostgreSQL database for ${{ inputs.app_name }}
+            annotations:
+              backstage.io/kubernetes-id: ${{ inputs.app_name }}-postgres
+              backstage.io/kubernetes-namespace: ${{ inputs.namespace }}
+              backstage.io/kubernetes-cluster: worker-cluster
+          spec:
+            type: database
+            owner: platform-team
+            system: app-stack
+            dependsOn:
+              - component:${{ inputs.namespace }}/${{ inputs.app_name }}
+          EOF
+
+          echo "✅ Created catalog-info.yaml for ${{ inputs.app_name }}"
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add apps/${{ inputs.app_name }}/catalog-info.yaml
+          git commit -m "Add Backstage catalog for ${{ inputs.app_name }}"
+          git push
+
+      - name: Summary
+        run: |
+          echo "### ✅ Catalog Info Created" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Application:** \`${{ inputs.app_name }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**File:** \`apps/${{ inputs.app_name }}/catalog-info.yaml\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "The catalog has been committed and pushed to the repository." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "#### Next Steps:" >> $GITHUB_STEP_SUMMARY
+          echo "1. Backstage will automatically discover this catalog" >> $GITHUB_STEP_SUMMARY
+          echo "2. View it in Backstage catalog: http://localhost:3000/catalog" >> $GITHUB_STEP_SUMMARY
