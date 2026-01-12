@@ -1,8 +1,0 @@
-apiVersion: marketplace.kratix.io/v1alpha2
-kind: postgresql
-metadata:
-  name: todoerdb
-  namespace: default
-spec:
-  dbName: todoerdb
-  teamId: todoerteam
