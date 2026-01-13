@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-awesome-app
+  namespace: default
+  labels:
+    app: my-awesome-app
+    environment: dev
+    managed-by: kratix
+  annotations:
+    kratix.io/promise: python-app
+    github.com/repository: https://github.com/Thwani47/my-awesome-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: my-awesome-app
+  template:
+    metadata:
+      labels:
+        app: my-awesome-app
+        environment: dev
+    spec:
+      containers:
+      - name: my-awesome-app
+        image: ghcr.io/Thwani47/my-awesome-app:main
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 5000
+          name: http
+        env:
+        - name: PORT
+          value: '5000'
+        - name: ENVIRONMENT
+          value: dev
+        - name: REDIS_HOST
+          value: my-awesome-app-redis
+        - name: REDIS_PORT
+          value: '6379'
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          initialDelaySeconds: 5
+          periodSeconds: 5
