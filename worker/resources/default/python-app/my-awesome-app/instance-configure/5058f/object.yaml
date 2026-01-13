@@ -1,0 +1,89 @@
+apiVersion: marketplace.kratix.io/v1alpha1
+kind: PythonApp
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"marketplace.kratix.io/v1alpha1","kind":"PythonApp","metadata":{"annotations":{},"name":"my-awesome-app","namespace":"default"},"spec":{"appName":"my-awesome-app","description":"My awesome Python app","environment":"dev","githubOrg":"Thwani47","redisEnabled":true,"replicas":2}}
+  creationTimestamp: "2026-01-13T14:54:35Z"
+  finalizers:
+  - kratix.io/work-cleanup
+  - kratix.io/workflows-cleanup
+  - kratix.io/delete-workflows
+  generation: 1
+  labels:
+    kratix.io/promise-name: python-app
+  managedFields:
+  - apiVersion: marketplace.kratix.io/v1alpha1
+    fieldsType: FieldsV1
+    fieldsV1:
+      f:metadata:
+        f:annotations:
+          .: {}
+          f:kubectl.kubernetes.io/last-applied-configuration: {}
+      f:spec:
+        .: {}
+        f:appName: {}
+        f:description: {}
+        f:environment: {}
+        f:githubOrg: {}
+        f:redisEnabled: {}
+        f:replicas: {}
+    manager: kubectl-client-side-apply
+    operation: Update
+    time: "2026-01-13T14:54:35Z"
+  - apiVersion: marketplace.kratix.io/v1alpha1
+    fieldsType: FieldsV1
+    fieldsV1:
+      f:metadata:
+        f:finalizers:
+          .: {}
+          v:"kratix.io/delete-workflows": {}
+          v:"kratix.io/work-cleanup": {}
+          v:"kratix.io/workflows-cleanup": {}
+        f:labels:
+          .: {}
+          f:kratix.io/promise-name: {}
+    manager: manager
+    operation: Update
+    time: "2026-01-13T14:54:35Z"
+  - apiVersion: marketplace.kratix.io/v1alpha1
+    fieldsType: FieldsV1
+    fieldsV1:
+      f:status:
+        .: {}
+        f:conditions: {}
+        f:message: {}
+        f:workflows: {}
+        f:workflowsFailed: {}
+        f:workflowsSucceeded: {}
+    manager: manager
+    operation: Update
+    subresource: status
+    time: "2026-01-13T14:54:35Z"
+  name: my-awesome-app
+  namespace: default
+  resourceVersion: "22927"
+  uid: 4e4da2c7-a1f9-49cc-99fc-23a26e911069
+spec:
+  appName: my-awesome-app
+  description: My awesome Python app
+  environment: dev
+  githubOrg: Thwani47
+  redisEnabled: true
+  replicas: 2
+status:
+  conditions:
+  - lastTransitionTime: "2026-01-13T14:54:35Z"
+    message: Pipelines are still in progress
+    reason: PipelinesInProgress
+    status: "False"
+    type: ConfigureWorkflowCompleted
+  - lastTransitionTime: "2026-01-13T14:54:35Z"
+    message: Pending
+    reason: WorkflowPending
+    status: Unknown
+    type: Reconciled
+  message: Pending
+  workflows: 1
+  workflowsFailed: 0
+  workflowsSucceeded: 0
