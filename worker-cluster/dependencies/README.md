@@ -1,1 +1,0 @@
-# Kratix Workload Dependencies
