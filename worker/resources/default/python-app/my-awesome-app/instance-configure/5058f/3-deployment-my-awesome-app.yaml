@@ -23,7 +23,7 @@ spec:
     spec:
       containers:
       - name: my-awesome-app
-        image: ghcr.io/thwani47/my-awesome-app:latest
+        image: ghcr.io/thwani47/my-awesome-app:e1d0147-e1d0147
         imagePullPolicy: Always
         ports:
         - containerPort: 5000
